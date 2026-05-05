@@ -4,7 +4,7 @@
   become: true
 
   vars:
-    app_repo: "https://github.com/example/tech-test.git"
+    app_repo: "https://github.com/davidevi-taskize/tech-test.git"
     app_dir: /opt/tech-test
     app_user: techtest
 
