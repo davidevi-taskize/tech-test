@@ -1,20 +1,19 @@
 ---
 - name: Deploy tech-test app
-  hosts: all
+  hosts: fixme
   become: true
 
   vars:
-    app_repo: "https://github.com/davidevi-taskize/tech-test.git"
-    app_dir: /opt/tech-test
+    app_dir: /opt/tech-test/app
     app_user: techtest
 
   tasks:
     - name: Install dependencies
       dnf:
         name:
-          - git
           - python3
           - python3-pip
+          - rsync
         state: present
 
     - name: Install uv
@@ -30,25 +29,27 @@
         home: "{{ app_dir }}"
         create_home: false
 
-    - name: Clone repository
-      git:
-        repo: "{{ app_repo }}"
-        dest: "{{ app_dir }}"
-        version: main
-        force: true
-      become_user: root
-
-    - name: Set app directory ownership
+    - name: Create app directory
       file:
         path: "{{ app_dir }}"
+        state: directory
         owner: "{{ app_user }}"
         group: "{{ app_user }}"
-        recurse: true
+        mode: "0755"
+
+    - name: Copy app files
+      synchronize:
+        src: ../app/
+        dest: "{{ app_dir }}/"
+        delete: true
+        rsync_opts:
+          - "--exclude=.venv"
+          - "--exclude=__pycache__"
 
     - name: Install Python dependencies
       command:
         cmd: uv sync
-        chdir: "{{ app_dir }}/app"
+        chdir: "{{ app_dir }}"
       become_user: "{{ app_user }}"
 
     - name: Install systemd unit
@@ -58,6 +59,7 @@
         owner: root
         group: root
         mode: "0644"
+      become: false
 
     - name: Enable and start service
       systemd:
