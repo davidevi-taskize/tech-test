@@ -5,7 +5,6 @@
 
   vars:
     app_dir: /opt/tech-test/app
-    app_user: techtest
 
   tasks:
     - name: Install dependencies
@@ -21,20 +20,10 @@
         name: uv
         executable: pip3
 
-    - name: Create app user
-      user:
-        name: "{{ app_user }}"
-        system: true
-        shell: /sbin/nologin
-        home: "{{ app_dir }}"
-        create_home: false
-
     - name: Create app directory
       file:
         path: "{{ app_dir }}"
         state: directory
-        owner: "{{ app_user }}"
-        group: "{{ app_user }}"
         mode: "0755"
 
     - name: Copy app files
@@ -50,7 +39,6 @@
       command:
         cmd: uv sync
         chdir: "{{ app_dir }}"
-      become_user: "{{ app_user }}"
 
     - name: Install systemd unit
       template:
@@ -59,7 +47,6 @@
         owner: root
         group: root
         mode: "0644"
-      become: false
 
     - name: Enable and start service
       systemd:
