@@ -49,6 +49,12 @@
         mode: "0644"
       become: false
 
+    # Uncomment to create LICENSE.txt and make /helth return {"status": "ok"}
+    # - name: Create LICENSE.txt
+    #   copy:
+    #     content: ""
+    #     dest: "{{ app_dir }}/LICENSE.txt"
+
     - name: Enable and start service
       systemd:
         name: tech-test
