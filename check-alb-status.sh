@@ -56,3 +56,48 @@ aws elbv2 describe-target-health \
   --target-group-arn "$TG_ARN" \
   --query "TargetHealthDescriptions[*].{Target:Target.Id,Port:Target.Port,State:TargetHealth.State,Reason:TargetHealth.Reason,Description:TargetHealth.Description}" \
   --output table
+
+echo ""
+echo "=== Health Check Probe ==="
+HC_PATH=$(aws elbv2 describe-target-groups \
+  --region "$REGION" \
+  --names "$TG_NAME" \
+  --query "TargetGroups[0].HealthCheckPath" \
+  --output text)
+
+HC_PORT=$(aws elbv2 describe-target-groups \
+  --region "$REGION" \
+  --names "$TG_NAME" \
+  --query "TargetGroups[0].Port" \
+  --output text)
+
+EXPECTED=$(aws elbv2 describe-target-groups \
+  --region "$REGION" \
+  --names "$TG_NAME" \
+  --query "TargetGroups[0].Matcher.HttpCode" \
+  --output text)
+
+INSTANCE_ID=$(aws elbv2 describe-target-health \
+  --region "$REGION" \
+  --target-group-arn "$TG_ARN" \
+  --query "TargetHealthDescriptions[0].Target.Id" \
+  --output text)
+
+INSTANCE_IP=$(aws ec2 describe-instances \
+  --region "$REGION" \
+  --instance-ids "$INSTANCE_ID" \
+  --query "Reservations[0].Instances[0].PrivateIpAddress" \
+  --output text)
+
+URL="http://$INSTANCE_IP:$HC_PORT$HC_PATH"
+echo "  Probe URL          : $URL"
+echo "  Expected HTTP code : $EXPECTED"
+
+ACTUAL=$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 5 "$URL" 2>/dev/null || echo "FAILED (connection refused or timed out)")
+echo "  Actual HTTP code   : $ACTUAL"
+
+if [[ "$ACTUAL" == "$EXPECTED" ]]; then
+  echo "  Result             : OK - codes match"
+else
+  echo "  Result             : MISMATCH - ALB will mark this target unhealthy"
+fi
