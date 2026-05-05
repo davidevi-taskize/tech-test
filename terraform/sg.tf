@@ -1,7 +1,3 @@
-variable "vpc_cidr" {
-  type = string
-}
-
 resource "aws_security_group" "alb" {
   name   = "tech-test-alb"
   vpc_id = var.vpc_id
@@ -30,7 +26,7 @@ resource "aws_security_group" "instance" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = [var.vpc_cidr]
+    cidr_blocks = ["10.250.0.0/16"]
   }
 
   ingress {
