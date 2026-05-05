@@ -53,5 +53,5 @@
       systemd:
         name: tech-test
         enabled: true
-        state: started
+        state: restarted
         daemon_reload: true
