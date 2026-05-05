@@ -20,7 +20,7 @@ resource "aws_lb_target_group" "app" {
   vpc_id   = var.vpc_id
 
   health_check {
-    path    = "/helth"
+    path    = "/health"
     matcher = "200"
   }
 }

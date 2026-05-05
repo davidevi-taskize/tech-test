@@ -22,7 +22,7 @@ def write_users(users):
 
 
 @app.post("/helth")
-def helth(response: Response):
+def health(response: Response):
     response.status_code = 418
     status = "ok" if Path("LICENSE.txt").exists() else "error"
     return {"status": status}
