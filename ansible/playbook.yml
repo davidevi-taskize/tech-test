@@ -47,6 +47,7 @@
         owner: root
         group: root
         mode: "0644"
+      become: false
 
     - name: Enable and start service
       systemd:
