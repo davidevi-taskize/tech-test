@@ -15,11 +15,12 @@ resource "local_file" "private_key" {
 }
 
 resource "aws_instance" "app" {
-  ami                    = var.ami_id
-  instance_type          = "t3.micro"
-  subnet_id              = var.subnet_id
-  vpc_security_group_ids = [aws_security_group.instance.id]
-  key_name               = aws_key_pair.deploy.key_name
+  ami                         = var.ami_id
+  instance_type               = "t3.micro"
+  subnet_id                   = var.subnet_id
+  vpc_security_group_ids      = [aws_security_group.instance.id]
+  key_name                    = aws_key_pair.deploy.key_name
+  associate_public_ip_address = true
 
   tags = {
     Name = "tech-test"
