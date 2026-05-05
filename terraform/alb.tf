@@ -1,11 +1,15 @@
+variable "subnet_id_b" {
+  type = string
+}
+
 resource "aws_lb" "app" {
   name               = "tech-test"
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.alb.id]
   subnets = [
-    var.subnet_id,             # dmz 1 — eu-west-1a
-    "subnet-060263d042456c2ef" # dmz 2 — eu-west-1b
+    var.subnet_id,   # dmz 1 — eu-west-1a
+    var.subnet_id_b  # dmz 2 — eu-west-1b
   ]
 }
 
